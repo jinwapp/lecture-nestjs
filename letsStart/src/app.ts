@@ -1,43 +1,50 @@
 import * as express from 'express';
-import { Cat, CatType } from './app.model';
+import catsRouter from './cats/cats.route';
 
-const app: express.Express = express();
+class Server {
+	public app: express.Application;
 
-const data = [1, 2, 3, 4];
+	constructor() {
+		const app: express.Application = express();
+		this.app = app;
+	}
 
-app.use((req, res, next) => {
-	//next : 다음 라우터로 이동할 수 있는 함수
-	console.log(req.rawHeaders[1]);
-	console.log('this is logging middleware');
-	next();
-});
+	private setRoute() {
+		this.app.use(catsRouter);
+	}
 
-app.get('/cats/som', (req, res, next) => {
-	//next : 다음 라우터로 이동할 수 있는 함수
-	console.log('this is som middleware');
-	next();
-});
+	private setMiddleware() {
+		//* logging middleware
+		this.app.use((req, res, next) => {
+			//next : 다음 라우터로 이동할 수 있는 함수
+			console.log(req.rawHeaders[1]);
+			console.log('this is logging middleware');
+			next();
+		});
 
-app.get('/', (req: express.Request, res: express.Response) => {
-	console.log('cats');
-	res.send({ cats: Cat });
-});
+		//* json middleware
+		this.app.use(express.json());
 
-app.get('/cats/blue', (req: express.Request, res: express.Response) => {
-	console.log('blue');
-	res.send({ cats: Cat, blue: Cat[0] });
-});
+		this.setRoute;
 
-app.get('/cats/som', (req: express.Request, res: express.Response) => {
-	console.log('som');
-	res.send({ som: Cat[1] });
-});
+		//* 404 middleware
+		this.app.use((req, res, next) => {
+			console.log('this is error middleware');
+			res.send({ error: '404 not found error' });
+		});
+	}
 
-app.use((req, res, next) => {
-	console.log('this is error middleware');
-	res.send({ error: '404 not found error' });
-});
+	public listen() {
+		this.setMiddleware();
+		this.app.listen(8000, () => {
+			console.log('serve is on...');
+		});
+	}
+}
 
-app.listen(8000, () => {
-	console.log('serve is on...');
-});
+function init() {
+	const server = new Server();
+	server.listen;
+}
+
+init();
